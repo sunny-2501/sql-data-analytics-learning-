@@ -2,6 +2,8 @@ USE Phase6;
 
 
 GO
+
+
 SELECT *
 FROM   EmployeeAnalytics;
 
@@ -98,15 +100,15 @@ Final Query"
 
 --Syntax for the Mutliple CTE 
 
-"";WITH FirstCTE AS
-(
-    ...
-),
-SecondCTE AS
-(
-    ...
-)
-SELECT ...""
+--"";WITH FirstCTE AS
+--(
+  --  ...
+--),
+--SecondCTE AS
+--(
+  --  ...
+--)
+--SELECT ...""
 
 
 
@@ -153,5 +155,98 @@ SaleComparison As
     )
      Select * from SaleComparison
      where MonthlySales > SalesAVG;
+
+---CTE chaining 
+--First calculate average Salary and average MonthlySales for every department.
+--Then create another CTE containing only departments whose average monthly sales are greater than 40000.
+--Finally show only those departments whose average salary is greater than 70000.
+
+
+;With Departmentsummary as
+ (
+ Select Department,
+ Avg(Salary)  As AvgSalary,
+ AVg(MonthlySales) as AVGmonthlysales
+ From EmployeeAnalytics 
+ Group By Department
+ ),
+ HighPerformance AS 
+ (
+ Select * From Departmentsummary 
+ Where AVGmonthlysales > 40000
+ )
+
+Select * From HighPerformance 
+Where AvgSalary > 70000;
+
+
+--First calculate, for each department:
+-- average salary
+-- total monthly sales
+--Then create a second CTE that keeps only departments where TotalMonthlySales > 100000.
+--Finally, from that second CTE, show only departments where AvgSalary > 70000.
+
+;With Departmentstates As
+( Select Department,
+AVG(Salary) as AvgSalary,
+sum(MonthlySales) as TotalMonthlysales
+from EmployeeAnalytics 
+Group by Department
+),
+Strongsales As 
+(
+Select  * From Departmentstates
+where TotalMonthlysales> 10000
+)
+
+Select * From Strongsales 
+where Avgsalary > 70000;
+
+
+--Recursive  CTE 
+--generate numbers from 1 to 5:
+
+;with numbers as
+(
+Select 1 as Num
+ Union All
+ Select Num +1 
+ From numbers
+ where Num <5 
+ )
+ Select * from Numbers;
+
+
+ --Views
+--creating a view 
+Create view  employeesummary As 
+Select 
+EmployeeName,
+Department,
+Salary,
+MonthlySales
+From EmployeeAnalytics;
+
+
+--Alter Modifiying the exist view
+Alter View employeesummary as
+Select 
+EmployeeName,
+Department,
+Salary,
+MonthlySales,
+JoinDate
+from EmployeeAnalytics ;
+
+Select * from employeesummary
+where Department in ('IT') ANd
+salary > 80000;
+
+
+--Drop
+
+Drop View employeesummary;
+
+DROP VIEW IF EXISTS HighValueEmployees;
 
 
